@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <div class="frame">
+        <h3>Instagram Post</h3>
+
+        <!-- Export to Excel button -->
+        <form action="{{ url_for('admin.export_instagram_posts', hashtag=hashtag) }}" method="post" class="mb-3">
+            <button type="submit" class="btn btn-success">Export to Excel</button>
+        </form>
+
+        <!-- Chart Container -->
+        <div class="mb-4">
+            <canvas id="postChart" width="400" height="200"></canvas>
+        </div>
+
+        <div class="table-frame">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">Username</th>
+                        <th style="width: 30%;">Text</th>
+                        <th style="width: 15%;">Created At</th>
+                        <th style="width: 15%;">Liked Count</th>
+                        <th style="width: 15%;">Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for posts in instagram_posts %}
+                        <tr>
+                            <td>{{ posts.username }}</td>
+                            <td>{{ posts.text }}</td>
+                            <td>{{ posts.createdAt }}</td>
+                            <td>{{ posts.likeCount }}</td>
+                            <td>
+                                <a href="https://www.instagram.com/p/{{ posts.code }}" target="_blank">
+                                    Link
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='vendor/chart.js/Chart.min.js') }}"></script>
+    <script>
+        const labels = [
+            new Date(new Date().setDate(new Date().getDate() - 6)).toLocaleDateString(),
+            new Date(new Date().setDate(new Date().getDate() - 5)).toLocaleDateString(),
+            new Date(new Date().setDate(new Date().getDate() - 4)).toLocaleDateString(),
+            new Date(new Date().setDate(new Date().getDate() - 3)).toLocaleDateString(),
+            new Date(new Date().setDate(new Date().getDate() - 2)).toLocaleDateString(),
+            new Date(new Date().setDate(new Date().getDate() - 1)).toLocaleDateString(),
+            new Date().toLocaleDateString()
+        ];
+
+        const data = [
+            {{ post_count_per_day['H-7'] }},
+            {{ post_count_per_day['H-6'] }},
+            {{ post_count_per_day['H-5'] }},
+            {{ post_count_per_day['H-4'] }},
+            {{ post_count_per_day['H-3'] }},
+            {{ post_count_per_day['H-2'] }},
+            {{ post_count_per_day['H-1'] }}
+        ];
+
+        var ctx = document.getElementById('postChart').getContext('2d');
+        var tweetChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Number of Tweets',
+                    data: data,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crawler</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            background-color: #343a40;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        .sidebar h4 {
+            margin-bottom: 20px;
+        }
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .sidebar a:hover {
+            background-color: #007bff;
+        }
+        .sidebar a i {
+            margin-right: 10px; /* Spacing between icon and text */
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            flex: 1;
+            overflow: auto;
+        }
+        .frame {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .frame h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .frame p {
+            color: #666;
+        }
+        .top-frames {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .top-frame {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            color: #333;
+        }
+        .top-frame h4 {
+            margin-top: 0;
+        }
+        .table-frame {
+            margin-top: 15px;
+        }
+        .table-frame table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-frame th, .table-frame td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .table-frame th {
+            background-color: #f2f2f2;
+        }
+        .table-frame tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .table-frame tr:hover {
+            background-color: #f1f1f1;
+        }
+        .pagination {
+            margin-top: 20px;
+            justify-content: center;
+        }
+        .form-frame {
+            margin-top: 15px;
+        }
+        .form-frame .form-group label {
+            font-weight: bold;
+        }
+        .btn-link {
+            color: #007bff;
+            font-size: 1.25rem;
+        }
+
+        .btn-link:hover {
+            color: #0056b3;
+            text-decoration: none;
+        }
+
+        .btn-link:focus, .btn-link:active {
+            outline: none;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h4 class="text-center">Dashboard</h4>
+        <div>
+            <a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+            <a href=""><i class="fas fa-envelope"></i>Facebook</a>
+            <a href="{{ url_for('admin.instagram_hashtag') }}"><i class="fas fa-envelope"></i>Instagram</a>
+            <a href="{{ url_for('admin.twitter_keyword') }}"><i class="fas fa-envelope"></i>Twitter</a>
+            <a href="{{ url_for('admin.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='vendor/chart.js/Chart.min.js') }}"></script>
+</body>
+</html>

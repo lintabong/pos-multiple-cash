@@ -1,7 +1,9 @@
 .venv
 .vscode
 
+flask_session
 
+.env
 __pycache__
 
 main*.py

@@ -59,7 +59,8 @@ CREATE TABLE transactions (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (wallet_id) REFERENCES wallets(wallet_id),
     FOREIGN KEY (target_wallet_id) REFERENCES wallets(wallet_id),
-    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+    FOREIGN KEY (category_id) REFERENCES categories(category_id),
+    INDEX idx_transaction_date (transaction_date)  -- Menambahkan index pada kolom transaction_date
 );
 
 CREATE TABLE items (
@@ -119,6 +120,87 @@ BEGIN
         WHERE wallet_id = NEW.wallet_id;
     END IF;
 END $$
+
+CREATE TRIGGER update_wallet_balance_after_income
+AFTER INSERT ON transactions
+FOR EACH ROW
+BEGIN
+    IF NEW.transaction_type = 'INCOME' THEN
+        -- Menambahkan saldo ke dompet sumber
+        UPDATE wallets 
+        SET balance = balance + NEW.amount
+        WHERE wallet_id = NEW.wallet_id;
+    END IF;
+END $$;
+
+CREATE TRIGGER update_wallet_balance_after_transaction_update
+AFTER UPDATE ON transactions
+FOR EACH ROW
+BEGIN
+    -- Jika nominal transaksi diperbarui
+    IF OLD.transaction_type = 'INCOME' THEN
+        -- Kurangi saldo berdasarkan nilai lama
+        UPDATE wallets 
+        SET balance = balance - OLD.amount
+        WHERE wallet_id = OLD.wallet_id;
+
+        -- Tambahkan saldo berdasarkan nilai baru
+        UPDATE wallets 
+        SET balance = balance + NEW.amount
+        WHERE wallet_id = NEW.wallet_id;
+    
+    ELSEIF OLD.transaction_type = 'EXPENSE' THEN
+        -- Tambahkan saldo berdasarkan nilai lama
+        UPDATE wallets 
+        SET balance = balance + OLD.amount
+        WHERE wallet_id = OLD.wallet_id;
+
+        -- Kurangi saldo berdasarkan nilai baru
+        UPDATE wallets 
+        SET balance = balance - NEW.amount
+        WHERE wallet_id = NEW.wallet_id;
+    
+    ELSEIF OLD.transaction_type = 'TRANSFER' THEN
+        -- Kurangi saldo dompet sumber dengan nilai lama
+        UPDATE wallets 
+        SET balance = balance + OLD.amount
+        WHERE wallet_id = OLD.wallet_id;
+
+        -- Tambahkan saldo ke dompet tujuan dengan nilai lama
+        UPDATE wallets 
+        SET balance = balance - OLD.amount
+        WHERE wallet_id = OLD.target_wallet_id;
+
+        -- Tambahkan saldo dompet sumber dengan nilai baru
+        UPDATE wallets 
+        SET balance = balance - NEW.amount
+        WHERE wallet_id = NEW.wallet_id;
+
+        -- Kurangi saldo dari dompet tujuan dengan nilai baru
+        UPDATE wallets 
+        SET balance = balance + NEW.amount
+        WHERE wallet_id = NEW.target_wallet_id;
+    END IF;
+END $$;
+
+CREATE TRIGGER update_wallet_balance_after_wallet_id_change
+AFTER UPDATE ON transactions
+FOR EACH ROW
+BEGIN
+    -- Cek jika wallet_id diperbarui
+    IF OLD.wallet_id != NEW.wallet_id THEN
+        -- Tambahkan saldo ke dompet lama
+        UPDATE wallets 
+        SET balance = balance + OLD.amount
+        WHERE wallet_id = OLD.wallet_id;
+
+        -- Kurangi saldo dari dompet baru
+        UPDATE wallets 
+        SET balance = balance - NEW.amount
+        WHERE wallet_id = NEW.wallet_id;
+    END IF;
+END $$;
+
 
 CREATE TRIGGER after_user_insert
 AFTER INSERT ON users
@@ -180,4 +262,10 @@ INSERT INTO `categories`(`category_name`, `transaction_type`) VALUES ('Acrylic',
 INSERT INTO `categories`(`category_name`, `transaction_type`) VALUES ('Bayar hutang','EXPENSE');
 INSERT INTO `categories`(`category_name`, `transaction_type`) VALUES ('Pendidikan','EXPENSE');
 INSERT INTO `categories`(`category_name`, `transaction_type`) VALUES ('Langganan','EXPENSE');
-
+INSERT INTO `categories`(`category_name`, `transaction_type`) VALUES ('Gaji','INCOME');
+INSERT INTO `categories`(`category_name`, `transaction_type`) VALUES ('Sampingan','INCOME');
+INSERT INTO `categories`(`category_name`, `transaction_type`) VALUES ('Elektronik','EXPENSE');
+INSERT INTO `categories`(`category_name`, `transaction_type`) VALUES ('Makan Jajan','EXPENSE');
+INSERT INTO `categories`(`category_name`, `transaction_type`) VALUES ('Internet','EXPENSE');
+INSERT INTO `categories`(`category_name`, `transaction_type`) VALUES ('Zakat','EXPENSE');
+INSERT INTO `categories`(`category_name`, `transaction_type`) VALUES ('Kesehatan','EXPENSE');

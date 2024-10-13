@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <div class="frame">
+        <h3>Instagram Comments</h3>
+        <div class="table-frame">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 2%;">Id</th>
+                        <th style="width: 13%;">Comment Id</th>
+                        <th style="width: 15%;">Username</th>
+                        <th style="width: 30%;">Text</th>
+                        <th style="width: 15%;">Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comment in instagram_comments %}
+                        <tr>
+                            <td>{{ comment.id }}</td>
+                            <td>{{ comment.postId }}</td>
+                            <td>{{ comment.username }}</td>
+                            <td>{{ comment.text }}</td>
+                            <td>{{ comment.createdAt }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

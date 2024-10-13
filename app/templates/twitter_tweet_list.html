@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <div class="frame">
+        <h3>Daftar Tweet</h3>
+
+        <!-- Export to Excel button -->
+        <form action="{{ url_for('admin.export_twitter_tweets', keyword=keyword) }}" method="post" class="mb-3">
+            <button type="submit" class="btn btn-success">Export to Excel</button>
+        </form>
+
+        <!-- Chart Container -->
+        <div class="mb-4">
+            <canvas id="tweetChart" width="400" height="200"></canvas>
+        </div>
+
+        <div class="table-frame">
+            <div class="list-group">
+                {% for tweet in twitter_tweets %}
+                    <div class="list-group-item">
+                        <p><strong style="color: rgb(130, 130, 230);">@{{ tweet.username }}</strong>  {{ tweet.text }}</p>
+                        <a href="https://x.com/{{ tweet.username }}/status/{{ tweet.tweetId }}" class="" target="_blank">
+                            <p class="text-muted" style="font-size: 0.9em;">{{ tweet.createdAt }}</p>
+                        </a>
+                        <div class="d-flex justify-content-start">
+                            <img src="/static/images/reply_icon.png" alt="Reply" class="ms-4" style="width: 20px; height: 20px;">
+                            <span class="ms-2">{{ tweet.replyCount }}</span>
+                            <p class="ms-4">   </p>
+                            <img src="/static/images/retweet_icon.png" alt="Retweet" class="ms-4" style="width: 20px; height: 20px;">
+                            <span class="ms-2">{{ tweet.retweetCount }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='vendor/chart.js/Chart.min.js') }}"></script>
+    <script>
+        const labels = [
+            new Date(new Date().setDate(new Date().getDate() - 6)).toLocaleDateString(),
+            new Date(new Date().setDate(new Date().getDate() - 5)).toLocaleDateString(),
+            new Date(new Date().setDate(new Date().getDate() - 4)).toLocaleDateString(),
+            new Date(new Date().setDate(new Date().getDate() - 3)).toLocaleDateString(),
+            new Date(new Date().setDate(new Date().getDate() - 2)).toLocaleDateString(),
+            new Date(new Date().setDate(new Date().getDate() - 1)).toLocaleDateString(),
+            new Date().toLocaleDateString()
+        ];
+
+        const data = [
+            {{ tweet_count_per_day['H-7'] }},
+            {{ tweet_count_per_day['H-6'] }},
+            {{ tweet_count_per_day['H-5'] }},
+            {{ tweet_count_per_day['H-4'] }},
+            {{ tweet_count_per_day['H-3'] }},
+            {{ tweet_count_per_day['H-2'] }},
+            {{ tweet_count_per_day['H-1'] }}
+        ];
+
+        var ctx = document.getElementById('tweetChart').getContext('2d');
+        var tweetChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Number of Tweets',
+                    data: data,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

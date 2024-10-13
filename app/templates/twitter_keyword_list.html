@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <div class="frame">
+        <h3>Twitter Keyword</h3>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert alert-danger" role="alert">
+                    {% for category, message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('admin.insert_twitter_keyword') }}" method="post" class="form-inline d-flex mb-3">
+            <div class="form-group mr-5">
+                <label for="postId" class="sr-only">Input Post ID Instagram</label>
+                <input type="text" class="form-control" id="postId" name="postId" placeholder="Input keyword" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Execute</button>
+        </form>
+
+        <br>
+
+        <div class="table-frame">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 2%;">Id</th>
+                        <th style="width: 13%;">Keyword</th>
+                        <th style="width: 15%;">Inserted At</th>
+                        <th style="width: 10%;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for keyword in twitter_keywords %}
+                        <tr>
+                            <td>{{ keyword.id }}</td>
+                            <td>{{ keyword.keyword }}</td>
+                            <td>{{ keyword.insertedAt }}</td>
+                            <td style="text-align: center; vertical-align: middle;">
+                                <div class="d-flex justify-content-center">
+                                    <a href="{{ url_for('admin.twitter_tweet', keyword=keyword.keyword) }}" class="btn btn-primary btn-sm mr-2">
+                                        Tweet List
+                                    </a>
+                                    <form action="{{ url_for('admin.delete_twitter_keyword', id=keyword.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this keyword?');">
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                            
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
